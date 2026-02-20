@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>おうちごはん帳 🍚</title>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=Kosugi+Maru&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #FDF6EC;
+    --warm-white: #FFFBF4;
+    --orange: #E8834A;
+    --orange-light: #F5A673;
+    --orange-pale: #FDE8D8;
+    --green: #6BAE72;
+    --green-light: #A8D5AC;
+    --green-pale: #E8F5E9;
+    --brown: #8B5E3C;
+    --brown-light: #C49A6C;
+    --text: #3D2B1F;
+    --text-light: #7A5C45;
+    --shadow: rgba(139,94,60,0.12);
+    --baby-pink: #F9D5D3;
+    --baby-blue: #D3E8F9;
+    --toddler-yellow: #FDF0C2;
+    --premium: #7C4DFF;
+    --premium-pale: #EDE7FF;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Zen Maru Gothic',sans-serif; background:var(--cream); color:var(--text); min-height:100vh; }
+
+/* ===== ヘッダー ===== */
+header {
+background: linear-gradient(135deg,#E8834A 0%,#C96A2E 100%);
+padding: 20px 24px 60px;
+position:relative; overflow:hidden;
+}
+header::before {
+content:’’; position:absolute; bottom:-30px; left:0; right:0;
+height:60px; background:var(–cream);
+border-radius:50% 50% 0 0/100% 100% 0 0;
+}
+.header-inner { max-width:600px; margin:0 auto; text-align:center; position:relative; z-index:1; }
+.logo { font-size:28px; font-weight:700; color:white; text-shadow:0 2px 8px rgba(0,0,0,.15); letter-spacing:.05em; }
+.logo span { font-size:32px; }
+.tagline { color:rgba(255,255,255,.9); font-size:13px; margin-top:4px; font-family:‘Kosugi Maru’,sans-serif; }
+
+/* プレミアムバッジ（ヘッダー右上） */
+.premium-header-btn {
+position:absolute; top:16px; right:16px;
+background:rgba(255,255,255,.2); border:1.5px solid rgba(255,255,255,.6);
+color:white; font-size:11px; padding:5px 10px; border-radius:20px;
+font-family:‘Kosugi Maru’,sans-serif; cursor:pointer;
+transition:background .2s;
+}
+.premium-header-btn:hover { background:rgba(255,255,255,.35); }
+.premium-header-btn.active { background:linear-gradient(135deg,#FFD700,#FFA000); border-color:#FFA000; color:#3D2B1F; }
+
+/* ===== メインコンテナ ===== */
+main { max-width:600px; margin:0 auto; padding:0 16px 80px; }
+
+/* ===== 広告枠（上部） ===== */
+.ad-banner {
+margin-top:14px;
+background:white;
+border:1.5px dashed #D4B896;
+border-radius:14px;
+padding:12px;
+text-align:center;
+font-family:‘Kosugi Maru’,sans-serif;
+font-size:11px;
+color:var(–text-light);
+position:relative;
+overflow:hidden;
+}
+.ad-banner.premium-hidden { display:none; }
+.ad-label {
+position:absolute; top:4px; left:8px;
+font-size:9px; color:#B0A090; letter-spacing:.05em;
+}
+.ad-content {
+display:flex; align-items:center; justify-content:center; gap:10px;
+padding-top:8px;
+}
+.ad-content img { width:40px; height:40px; border-radius:8px; object-fit:cover; }
+.ad-text { text-align:left; }
+.ad-text strong { display:block; font-size:13px; color:var(–brown); }
+.ad-btn {
+background:var(–orange); color:white; border:none;
+border-radius:8px; padding:5px 10px; font-size:11px; cursor:pointer;
+font-family:‘Kosugi Maru’,sans-serif;
+}
+
+/* ===== プレミアムバナー ===== */
+.premium-banner {
+margin-top:10px;
+background:linear-gradient(135deg,#7C4DFF,#512DA8);
+border-radius:14px;
+padding:14px 16px;
+display:flex; align-items:center; justify-content:space-between; gap:10px;
+}
+.premium-banner.hidden { display:none; }
+.premium-banner-text { color:white; font-size:12px; font-family:‘Kosugi Maru’,sans-serif; line-height:1.6; }
+.premium-banner-text strong { font-size:14px; display:block; }
+.premium-btn {
+background:white; color:var(–premium);
+border:none; border-radius:10px; padding:8px 14px;
+font-size:12px; font-weight:700; cursor:pointer;
+font-family:‘Zen Maru Gothic’,sans-serif; white-space:nowrap;
+transition:transform .15s;
+}
+.premium-btn:hover { transform:scale(1.04); }
+
+/* ===== 年齢タブ ===== */
+.age-tabs {
+display:flex; gap:8px; margin-top:16px;
+background:white; border-radius:20px; padding:6px;
+box-shadow:0 4px 20px var(–shadow);
+}
+.age-tab {
+flex:1; padding:10px 4px; border:none; border-radius:14px;
+font-family:‘Zen Maru Gothic’,sans-serif; font-size:13px; font-weight:500;
+cursor:pointer; transition:all .25s; background:transparent; color:var(–text-light);
+display:flex; flex-direction:column; align-items:center; gap:2px;
+}
+.age-tab .tab-icon { font-size:20px; }
+.age-tab.active[data-age=“adult”]   { background:var(–orange); color:white; box-shadow:0 4px 12px rgba(232,131,74,.4); }
+.age-tab.active[data-age=“toddler”] { background:#E6B830; color:white; box-shadow:0 4px 12px rgba(230,184,48,.4); }
+.age-tab.active[data-age=“baby”]    { background:#E87B8A; color:white; box-shadow:0 4px 12px rgba(232,123,138,.4); }
+
+/* ===== 月齢セレクター（離乳食のみ） ===== */
+.baby-month-selector {
+margin-top:10px; display:none; animation:fadeIn .3s;
+}
+.baby-month-selector.show { display:block; }
+.section-label { font-size:12px; color:var(–text-light); font-family:‘Kosugi Maru’,sans-serif; margin-bottom:6px; padding-left:4px; }
+.month-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+.month-tab {
+padding:7px 14px; border:2px solid var(–baby-pink); border-radius:20px;
+background:white; font-family:‘Kosugi Maru’,sans-serif; font-size:12px;
+cursor:pointer; transition:all .2s; color:#8B3A47;
+}
+.month-tab.active { background:#E87B8A; border-color:#E87B8A; color:white; }
+
+/* 年齢ヒント */
+.age-hint {
+padding:10px 14px; border-radius:12px; font-size:12px; margin-top:10px;
+font-family:‘Kosugi Maru’,sans-serif; line-height:1.6; animation:fadeIn .3s;
+}
+.age-hint[data-for=“adult”]   { background:var(–orange-pale); color:var(–brown); }
+.age-hint[data-for=“toddler”] { background:var(–toddler-yellow); color:#7A6020; }
+.age-hint[data-for=“baby”]    { background:var(–baby-pink); color:#8B3A47; }
+
+/* ===== ジャンルタブ ===== */
+.genre-section { margin-top:18px; }
+.genre-tabs { display:flex; gap:6px; flex-wrap:wrap; }
+.genre-tab {
+padding:8px 16px; border:2px solid var(–orange-pale); border-radius:20px;
+background:white; font-family:‘Zen Maru Gothic’,sans-serif; font-size:13px;
+cursor:pointer; transition:all .2s; color:var(–text-light);
+}
+.genre-tab.active { background:var(–orange); border-color:var(–orange); color:white; }
+.genre-tab:hover:not(.active) { border-color:var(–orange-light); color:var(–orange); }
+
+/* ===== アレルギーフィルター ===== */
+.allergy-section { margin-top:18px; }
+.allergy-toggle {
+display:flex; align-items:center; gap:8px; cursor:pointer;
+font-size:13px; color:var(–text-light); font-family:‘Kosugi Maru’,sans-serif;
+user-select:none;
+}
+.allergy-toggle-icon { transition:transform .2s; }
+.allergy-toggle-icon.open { transform:rotate(90deg); }
+.allergy-tags {
+display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;
+display:none;
+}
+.allergy-tags.show { display:flex; animation:fadeIn .25s; }
+.allergy-chip {
+padding:6px 12px; border:2px solid #FFCDD2; border-radius:20px;
+background:white; font-family:‘Kosugi Maru’,sans-serif; font-size:12px;
+cursor:pointer; transition:all .2s; color:#B71C1C;
+display:flex; align-items:center; gap:4px;
+}
+.allergy-chip.selected { background:#FFCDD2; border-color:#E57373; }
+
+/* ===== 食材入力 ===== */
+.input-section {
+margin-top:18px; background:white; border-radius:20px;
+padding:20px; box-shadow:0 4px 20px var(–shadow);
+}
+.input-title { font-size:15px; font-weight:700; color:var(–brown); margin-bottom:12px; display:flex; align-items:center; gap:6px; }
+.ingredient-input-row { display:flex; gap:8px; }
+.ingredient-input {
+flex:1; padding:12px 16px; border:2px solid var(–orange-pale);
+border-radius:14px; font-family:‘Zen Maru Gothic’,sans-serif; font-size:15px;
+outline:none; transition:border-color .2s; background:var(–warm-white); color:var(–text);
+}
+.ingredient-input:focus { border-color:var(–orange); }
+.ingredient-input::placeholder { color:#C4A882; font-size:13px; }
+.add-btn {
+width:46px; height:46px; border-radius:14px; border:none;
+background:var(–orange); color:white; font-size:24px; cursor:pointer;
+transition:transform .15s,box-shadow .15s;
+display:flex; align-items:center; justify-content:center; flex-shrink:0;
+}
+.add-btn:hover { transform:scale(1.05); box-shadow:0 4px 12px rgba(232,131,74,.4); }
+.add-btn:active { transform:scale(.97); }
+.ingredient-tags { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.ingredient-tag {
+display:flex; align-items:center; gap:4px;
+background:var(–orange-pale); color:var(–brown);
+padding:5px 10px 5px 12px; border-radius:20px; font-size:13px; animation:popIn .2s;
+}
+.tag-remove {
+width:18px; height:18px; border-radius:50%; border:none;
+background:var(–brown-light); color:white; font-size:12px; cursor:pointer;
+display:flex; align-items:center; justify-content:center; padding:0;
+}
+
+/* 検索ボタン */
+.search-btn {
+width:100%; margin-top:16px; padding:16px; border:none; border-radius:16px;
+background:linear-gradient(135deg,var(–orange) 0%,#C96A2E 100%);
+color:white; font-family:‘Zen Maru Gothic’,sans-serif; font-size:16px; font-weight:700;
+cursor:pointer; transition:transform .15s,box-shadow .2s;
+box-shadow:0 6px 20px rgba(232,131,74,.4); letter-spacing:.05em;
+}
+.search-btn:hover { transform:translateY(-1px); box-shadow:0 8px 24px rgba(232,131,74,.5); }
+.search-btn:active { transform:translateY(1px); }
+.search-btn:disabled { opacity:.6; cursor:not-allowed; transform:none; }
+
+/* 検索回数表示（フリープラン） */
+.search-counter {
+text-align:center; font-size:11px; color:var(–text-light);
+font-family:‘Kosugi Maru’,sans-serif; margin-top:8px;
+}
+.search-counter.warn { color:#E57373; }
+.search-counter.premium-hidden { display:none; }
+
+/* ===== ローディング ===== */
+.loading { text-align:center; padding:40px 20px; display:none; }
+.loading-dots { display:flex; justify-content:center; gap:8px; margin-bottom:12px; }
+.dot { width:12px; height:12px; border-radius:50%; background:var(–orange); animation:bounce 1.2s infinite; }
+.dot:nth-child(2) { animation-delay:.2s; background:#E6B830; }
+.dot:nth-child(3) { animation-delay:.4s; background:#E87B8A; }
+.loading-text { font-family:‘Kosugi Maru’,sans-serif; color:var(–text-light); font-size:14px; }
+
+/* エラー */
+.error-msg { text-align:center; padding:30px; color:#E87B8A; font-family:‘Kosugi Maru’,sans-serif; font-size:14px; display:none; }
+
+/* ===== 結果エリア ===== */
+.results-section { margin-top:20px; display:none; }
+.results-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.results-title { font-size:16px; font-weight:700; color:var(–brown); display:flex; align-items:center; gap:6px; }
+.fav-tab-btn {
+font-size:12px; padding:5px 12px; border:2px solid var(–orange-pale);
+border-radius:14px; background:white; cursor:pointer; color:var(–orange);
+font-family:‘Kosugi Maru’,sans-serif; transition:all .2s;
+}
+.fav-tab-btn.active { background:var(–orange); color:white; border-color:var(–orange); }
+
+/* ===== レシピカード ===== */
+.recipe-card {
+background:white; border-radius:20px; padding:20px; margin-bottom:14px;
+box-shadow:0 4px 20px var(–shadow); animation:fadeUp .4s ease;
+border-left:4px solid var(–orange); position:relative;
+transition:transform .2s,box-shadow .2s;
+}
+.recipe-card:hover { transform:translateY(-2px); box-shadow:0 8px 28px var(–shadow); }
+.recipe-card[data-age=“toddler”] { border-left-color:#E6B830; }
+.recipe-card[data-age=“baby”]    { border-left-color:#E87B8A; }
+
+.recipe-header { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.recipe-name { font-size:17px; font-weight:700; color:var(–text); line-height:1.4; cursor:pointer; }
+.recipe-badges { display:flex; gap:4px; flex-shrink:0; flex-wrap:wrap; justify-content:flex-end; align-items:center; }
+.badge { font-size:11px; padding:3px 8px; border-radius:10px; font-family:‘Kosugi Maru’,sans-serif; white-space:nowrap; }
+.badge-time   { background:var(–green-pale); color:var(–green); }
+.badge-genre  { background:var(–orange-pale); color:var(–brown); }
+
+/* お気に入りボタン */
+.fav-btn {
+position:absolute; top:16px; right:16px;
+background:none; border:none; font-size:22px; cursor:pointer;
+transition:transform .2s; line-height:1;
+}
+.fav-btn:hover { transform:scale(1.2); }
+
+.recipe-desc { font-size:13px; color:var(–text-light); margin-top:10px; line-height:1.7; font-family:‘Kosugi Maru’,sans-serif; padding-right:28px; }
+
+/* 展開詳細 */
+.recipe-detail { display:none; margin-top:16px; padding-top:16px; border-top:1px dashed var(–orange-pale); }
+.recipe-detail.open { display:block; animation:fadeIn .3s; }
+.detail-section-title { font-size:13px; font-weight:700; color:var(–brown); margin-bottom:8px; display:flex; align-items:center; gap:4px; }
+.ingredient-list, .step-list { list-style:none; font-family:‘Kosugi Maru’,sans-serif; font-size:13px; color:var(–text-light); }
+.ingredient-list li { padding:4px 0; border-bottom:1px solid var(–orange-pale); display:flex; justify-content:space-between; }
+.ingredient-list li:last-child { border-bottom:none; }
+.step-list { counter-reset:steps; }
+.step-list li { counter-increment:steps; padding:8px 0 8px 32px; position:relative; border-bottom:1px solid var(–orange-pale); line-height:1.6; }
+.step-list li:last-child { border-bottom:none; }
+.step-list li::before {
+content:counter(steps); position:absolute; left:0; top:8px;
+width:22px; height:22px; background:var(–orange); color:white;
+border-radius:50%; font-size:12px; display:flex; align-items:center; justify-content:center; font-weight:700;
+}
+.recipe-card[data-age=“toddler”] .step-list li::before { background:#E6B830; }
+.recipe-card[data-age=“baby”]    .step-list li::before { background:#E87B8A; }
+.baby-note    { background:var(–baby-pink); border-radius:10px; padding:10px 12px; font-size:12px; color:#8B3A47; margin-top:10px; font-family:‘Kosugi Maru’,sans-serif; line-height:1.6; }
+.toddler-note { background:var(–toddler-yellow); border-radius:10px; padding:10px 12px; font-size:12px; color:#7A6020; margin-top:10px; font-family:‘Kosugi Maru’,sans-serif; line-height:1.6; }
+.external-link {
+display:flex; align-items:center; justify-content:center; gap:6px;
+margin-top:12px; padding:10px; background:var(–green-pale); border-radius:10px;
+color:var(–green); font-size:13px; text-decoration:none;
+font-family:‘Kosugi Maru’,sans-serif; transition:background .2s;
+}
+.external-link:hover { background:var(–green-light); color:white; }
+
+/* ===== お気に入りタブ（空の場合） ===== */
+.empty-fav { text-align:center; padding:40px 20px; color:var(–text-light); font-family:‘Kosugi Maru’,sans-serif; font-size:14px; line-height:2; }
+
+/* ===== プレミアムモーダル ===== */
+.modal-overlay {
+position:fixed; inset:0; background:rgba(0,0,0,.5);
+display:flex; align-items:center; justify-content:center;
+z-index:1000; display:none; padding:20px;
+}
+.modal-overlay.show { display:flex; animation:fadeIn .2s; }
+.modal {
+background:white; border-radius:24px; padding:28px 24px;
+max-width:400px; width:100%; text-align:center;
+animation:fadeUp .3s;
+}
+.modal-emoji { font-size:48px; }
+.modal-title { font-size:20px; font-weight:700; color:var(–premium); margin-top:8px; }
+.modal-subtitle { font-size:13px; color:var(–text-light); font-family:‘Kosugi Maru’,sans-serif; margin-top:6px; line-height:1.7; }
+.modal-features { text-align:left; background:var(–premium-pale); border-radius:14px; padding:16px; margin:16px 0; }
+.modal-feature { font-size:13px; font-family:‘Kosugi Maru’,sans-serif; padding:4px 0; color:var(–text); }
+.modal-price { font-size:28px; font-weight:700; color:var(–premium); margin:12px 0 4px; }
+.modal-price span { font-size:14px; color:var(–text-light); }
+.modal-cta {
+width:100%; padding:14px; border:none; border-radius:14px;
+background:linear-gradient(135deg,#7C4DFF,#512DA8); color:white;
+font-size:16px; font-weight:700; font-family:‘Zen Maru Gothic’,sans-serif;
+cursor:pointer; margin-top:8px; transition:transform .15s;
+}
+.modal-cta:hover { transform:translateY(-1px); }
+.modal-close {
+background:none; border:none; color:var(–text-light);
+font-size:13px; font-family:‘Kosugi Maru’,sans-serif; cursor:pointer;
+margin-top:12px; display:block; width:100%;
+}
+
+/* 広告（中間） */
+.ad-mid {
+background:white; border:1.5px dashed #D4B896; border-radius:14px;
+padding:14px; margin:14px 0; text-align:center;
+font-family:‘Kosugi Maru’,sans-serif; font-size:12px; color:var(–text-light);
+position:relative;
+}
+.ad-mid.premium-hidden { display:none; }
+.ad-mid-label { font-size:9px; color:#B0A090; margin-bottom:4px; }
+.ad-mid-content { font-size:13px; color:var(–brown); font-weight:500; }
+
+/* ===== フッター ===== */
+.footer-note { text-align:center; padding:20px; font-size:11px; color:var(–text-light); font-family:‘Kosugi Maru’,sans-serif; line-height:1.8; }
+
+/* アニメーション */
+@keyframes bounce { 0%,80%,100%{transform:scale(.7);opacity:.5} 40%{transform:scale(1);opacity:1} }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes popIn  { from{opacity:0;transform:scale(.7)} to{opacity:1;transform:scale(1)} }
+
+.ai-badge {
+display:inline-flex; align-items:center; gap:4px;
+background:linear-gradient(135deg,#667eea,#764ba2); color:white;
+font-size:10px; padding:2px 8px; border-radius:10px; margin-left:6px;
+font-family:‘Kosugi Maru’,sans-serif;
+}
+</style>
+
+</head>
+<body>
+
+<!-- ===== ヘッダー ===== -->
+
+<header>
+  <div class="header-inner">
+    <div class="logo"><span>🍳</span> おうちごはん帳</div>
+    <div class="tagline">冷蔵庫の食材からレシピを提案！子育て家族のための料理サポート</div>
+  </div>
+  <button class="premium-header-btn" id="premiumHeaderBtn" onclick="openModal()">👑 プレミアム</button>
+</header>
+
+<main>
+
+  <!-- ===== 広告バナー（上部） ===== -->
+
+  <div class="ad-banner" id="adBannerTop">
+    <div class="ad-label">広 告</div>
+    <div class="ad-content">
+      <div style="font-size:32px">🥦</div>
+      <div class="ad-text">
+        <strong>Oisix（オイシックス）</strong>
+        農薬・化学肥料不使用の安心食材をお届け
+      </div>
+      <button class="ad-btn" onclick="alert('※ 実際の広告はAdSenseやアフィリエイトに差し替えます')">詳しく</button>
+    </div>
+  </div>
+
+  <!-- ===== プレミアムバナー ===== -->
+
+  <div class="premium-banner" id="premiumBanner">
+    <div class="premium-banner-text">
+      <strong>👑 プレミアムプランで広告なし</strong>
+      月額480円で検索無制限・全機能解放
+    </div>
+    <button class="premium-btn" onclick="openModal()">試す</button>
+  </div>
+
+  <!-- ===== 年齢タブ ===== -->
+
+  <div class="age-tabs">
+    <button class="age-tab active" data-age="adult"   onclick="selectAge('adult')">  <span class="tab-icon">🍽️</span>大人向け</button>
+    <button class="age-tab"        data-age="toddler" onclick="selectAge('toddler')"><span class="tab-icon">👧</span>幼児食</button>
+    <button class="age-tab"        data-age="baby"    onclick="selectAge('baby')">   <span class="tab-icon">👶</span>離乳食</button>
+  </div>
+
+  <!-- 月齢セレクター -->
+
+  <div class="baby-month-selector" id="babyMonthSelector">
+    <div class="section-label" style="margin-top:12px">🌙 月齢を選んでください</div>
+    <div class="month-tabs">
+      <button class="month-tab active" data-month="5-6"   onclick="selectMonth('5-6')">  5〜6ヶ月（初期）</button>
+      <button class="month-tab"        data-month="7-8"   onclick="selectMonth('7-8')">  7〜8ヶ月（中期）</button>
+      <button class="month-tab"        data-month="9-11"  onclick="selectMonth('9-11')"> 9〜11ヶ月（後期）</button>
+      <button class="month-tab"        data-month="12-18" onclick="selectMonth('12-18')">12〜18ヶ月（完了期）</button>
+    </div>
+  </div>
+
+  <div class="age-hint" id="ageHint" data-for="adult">
+    🧑‍🍳 大人向け：しっかり味付けのご飯。辛みやお酒の風味もOKなレシピを提案します。
+  </div>
+
+  <!-- ===== ジャンルタブ ===== -->
+
+  <div class="genre-section">
+    <div class="section-label">🗾 料理ジャンル</div>
+    <div class="genre-tabs">
+      <button class="genre-tab active" data-genre="all"      onclick="selectGenre('all')">すべて</button>
+      <button class="genre-tab"        data-genre="japanese" onclick="selectGenre('japanese')">和食 🍱</button>
+      <button class="genre-tab"        data-genre="western"  onclick="selectGenre('western')">洋食 🍝</button>
+      <button class="genre-tab"        data-genre="chinese"  onclick="selectGenre('chinese')">中華 🥟</button>
+      <button class="genre-tab"        data-genre="other"    onclick="selectGenre('other')">その他 🌍</button>
+    </div>
+  </div>
+
+  <!-- ===== アレルギーフィルター ===== -->
+
+  <div class="allergy-section">
+    <div class="section-label">
+      <span class="allergy-toggle" onclick="toggleAllergy()">
+        <span class="allergy-toggle-icon" id="allergyIcon">▶</span>
+        ⚠️ アレルギー除外フィルター（任意）
+      </span>
+    </div>
+    <div class="allergy-tags" id="allergyTags">
+      <button class="allergy-chip" onclick="toggleAllergen(this,'卵')">🥚 卵</button>
+      <button class="allergy-chip" onclick="toggleAllergen(this,'乳製品')">🥛 乳製品</button>
+      <button class="allergy-chip" onclick="toggleAllergen(this,'小麦')">🌾 小麦</button>
+      <button class="allergy-chip" onclick="toggleAllergen(this,'そば')">🍜 そば</button>
+      <button class="allergy-chip" onclick="toggleAllergen(this,'落花生')">🥜 落花生</button>
+      <button class="allergy-chip" onclick="toggleAllergen(this,'えび')">🦐 えび</button>
+      <button class="allergy-chip" onclick="toggleAllergen(this,'かに')">🦀 かに</button>
+      <button class="allergy-chip" onclick="toggleAllergen(this,'大豆')">🫘 大豆</button>
+      <button class="allergy-chip" onclick="toggleAllergen(this,'魚介類')">🐟 魚介類</button>
+    </div>
+  </div>
+
+  <!-- ===== 食材入力 ===== -->
+
+  <div class="input-section">
+    <div class="input-title">🥕 今ある食材を入力してください</div>
+    <div class="ingredient-input-row">
+      <input type="text" id="ingredientInput" class="ingredient-input"
+        placeholder="例：鶏もも肉、じゃがいも、玉ねぎ..."
+        onkeydown="handleKeydown(event)">
+      <button class="add-btn" onclick="addIngredient()">＋</button>
+    </div>
+    <div class="ingredient-tags" id="ingredientTags"></div>
+    <button class="search-btn" id="searchBtn" onclick="searchRecipes()">
+      ✨ レシピを提案してもらう
+    </button>
+    <div class="search-counter" id="searchCounter">今日あと <strong id="remainCount">3</strong> 回検索できます（無料プラン）</div>
+  </div>
+
+  <!-- ローディング -->
+
+  <div class="loading" id="loading">
+    <div class="loading-dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="loading-text" id="loadingText">AIがレシピを考えています...🍳</div>
+  </div>
+  <div class="error-msg" id="errorMsg">⚠️ レシピの取得に失敗しました。もう一度お試しください。</div>
+
+  <!-- ===== 結果 ===== -->
+
+  <div class="results-section" id="resultsSection">
+    <div class="results-header">
+      <div class="results-title">🎉 提案レシピ <span class="ai-badge">✦ AI生成</span></div>
+      <button class="fav-tab-btn" id="favTabBtn" onclick="toggleFavView()">❤️ お気に入り</button>
+    </div>
+    <div id="recipeList"></div>
+  </div>
+
+  <div class="footer-note">
+    ※ レシピはAIが生成します。アレルギーや月齢の目安は必ずかかりつけの医師・栄養士にもご確認ください。<br>
+    広告収入はアプリの運営・改善に使用しています。
+  </div>
+</main>
+
+<!-- ===== プレミアムモーダル ===== -->
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <div class="modal-emoji">👑</div>
+    <div class="modal-title">プレミアムプラン</div>
+    <div class="modal-subtitle">子育て家族の毎日の献立をもっとラクに</div>
+    <div class="modal-features">
+      <div class="modal-feature">✅ 検索回数 無制限</div>
+      <div class="modal-feature">✅ 広告なし・すっきり表示</div>
+      <div class="modal-feature">✅ お気に入り 無制限保存</div>
+      <div class="modal-feature">✅ アレルギー除外プロ設定</div>
+      <div class="modal-feature">✅ 週間献立プラン自動生成</div>
+      <div class="modal-feature">✅ 月齢別・栄養バランス表示</div>
+    </div>
+    <div class="modal-price">¥480 <span>/ 月（税込）</span></div>
+    <button class="modal-cta" onclick="activatePremium()">🎉 プレミアムを始める</button>
+    <button class="modal-close" onclick="closeModal()">今はしない</button>
+  </div>
+</div>
+
+<script>
+  // ===== State =====
+  let currentAge = 'adult';
+  let currentGenre = 'all';
+  let currentMonth = '5-6';
+  let ingredients = [];
+  let allergens = [];
+  let isPremium = false;
+  let searchCount = 0;
+  const FREE_LIMIT = 3;
+  let favorites = JSON.parse(localStorage.getItem('ouchi_favs') || '[]');
+  let currentRecipes = [];
+  let showingFavs = false;
+
+  const ageHints = {
+    adult:   '🧑‍🍳 大人向け：しっかり味付けのご飯。辛みやお酒の風味もOKなレシピを提案します。',
+    toddler: '👧 幼児食（1〜5歳）：薄味・やわらか食感が基本。食べやすいサイズに整えたレシピを提案します。',
+    baby:    '👶 離乳食：選択した月齢に合わせた固さ・食材・調理法を考慮します。ご使用前に医師にもご相談ください。'
+  };
+  const genreNames   = { all:'なんでも', japanese:'和食', western:'洋食', chinese:'中華', other:'その他（エスニック・韓国料理など）' };
+  const ageNames     = { adult:'大人向け', toddler:'幼児食（1〜5歳）', baby:'離乳食' };
+  const monthLabels  = { '5-6':'5〜6ヶ月（初期）', '7-8':'7〜8ヶ月（中期）', '9-11':'9〜11ヶ月（後期）', '12-18':'12〜18ヶ月（完了期）' };
+
+  // ===== 年齢 =====
+  function selectAge(age) {
+    currentAge = age;
+    document.querySelectorAll('.age-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.age-tab[data-age="${age}"]`).classList.add('active');
+    const hint = document.getElementById('ageHint');
+    hint.textContent = ageHints[age];
+    hint.setAttribute('data-for', age);
+    const selector = document.getElementById('babyMonthSelector');
+    selector.classList.toggle('show', age === 'baby');
+    clearResults();
+  }
+
+  function selectMonth(m) {
+    currentMonth = m;
+    document.querySelectorAll('.month-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.month-tab[data-month="${m}"]`).classList.add('active');
+    clearResults();
+  }
+
+  // ===== ジャンル =====
+  function selectGenre(genre) {
+    currentGenre = genre;
+    document.querySelectorAll('.genre-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.genre-tab[data-genre="${genre}"]`).classList.add('active');
+    clearResults();
+  }
+
+  // ===== アレルギー =====
+  function toggleAllergy() {
+    const tags = document.getElementById('allergyTags');
+    const icon = document.getElementById('allergyIcon');
+    tags.classList.toggle('show');
+    icon.classList.toggle('open');
+  }
+
+  function toggleAllergen(el, name) {
+    el.classList.toggle('selected');
+    if (allergens.includes(name)) {
+      allergens = allergens.filter(a => a !== name);
+    } else {
+      allergens.push(name);
+    }
+  }
+
+  // ===== 食材入力 =====
+  function handleKeydown(e) { if (e.key === 'Enter') addIngredient(); }
+
+  function addIngredient() {
+    const input = document.getElementById('ingredientInput');
+    const val = input.value.trim();
+    if (!val) return;
+    const items = val.split(/[\s　,，、]+/).filter(v => v.length > 0);
+    items.forEach(item => { if (!ingredients.includes(item)) ingredients.push(item); });
+    input.value = '';
+    renderTags();
+    clearResults();
+  }
+
+  function removeIngredient(item) {
+    ingredients = ingredients.filter(i => i !== item);
+    renderTags();
+  }
+
+  function renderTags() {
+    const container = document.getElementById('ingredientTags');
+    container.innerHTML = ingredients.map(item => `
+      <div class="ingredient-tag">${item}
+        <button class="tag-remove" onclick="removeIngredient('${item}')">×</button>
+      </div>`).join('');
+  }
+
+  function clearResults() {
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('errorMsg').style.display = 'none';
+    showingFavs = false;
+    const fb = document.getElementById('favTabBtn');
+    fb.classList.remove('active');
+    fb.textContent = '❤️ お気に入り';
+  }
+
+  // ===== 検索カウンター =====
+  function updateCounter() {
+    const el = document.getElementById('searchCounter');
+    const remain = document.getElementById('remainCount');
+    if (isPremium) { el.classList.add('premium-hidden'); return; }
+    el.classList.remove('premium-hidden');
+    const left = FREE_LIMIT - searchCount;
+    remain.textContent = left;
+    el.className = 'search-counter' + (left <= 1 ? ' warn' : '');
+  }
+
+  // ===== 検索 =====
+  async function searchRecipes() {
+    if (ingredients.length === 0) { alert('食材を1つ以上入力してください 🥕'); return; }
+    if (!isPremium && searchCount >= FREE_LIMIT) { openModal(); return; }
+
+    const btn = document.getElementById('searchBtn');
+    const loading = document.getElementById('loading');
+    btn.disabled = true;
+    loading.style.display = 'block';
+    document.getElementById('resultsSection').style.display = 'none';
+    document.getElementById('errorMsg').style.display = 'none';
+    showingFavs = false;
+
+    const ageLabel   = ageNames[currentAge];
+    const genreLabel = genreNames[currentGenre];
+    const monthLabel = currentAge === 'baby' ? monthLabels[currentMonth] : '';
+    const allergyStr = allergens.length > 0 ? `\n除外アレルゲン：${allergens.join('、')}（これらを含む食材・調味料は一切使わないでください）` : '';
+
+    const prompt = buildPrompt(ingredients, ageLabel, genreLabel, monthLabel, allergyStr);
+
+    try {
+      // ← APIキーはサーバー側（/api/recipe）に隠れているので安全
+      const response = await fetch("/api/recipe", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ prompt })
+      });
+      const data = await response.json();
+      const text = data.content.map(c=>c.text||'').join('');
+      const clean = text.replace(/```json|```/g,'').trim();
+      const parsed = JSON.parse(clean);
+      currentRecipes = parsed.recipes;
+      searchCount++;
+      updateCounter();
+      renderRecipes(currentRecipes);
+    } catch(e) {
+      document.getElementById('errorMsg').style.display = 'block';
+      console.error(e);
+    } finally {
+      btn.disabled = false;
+      loading.style.display = 'none';
+    }
+  }
+
+  function buildPrompt(items, ageLabel, genreLabel, monthLabel, allergyStr) {
+    let p = `食材：${items.join('、')}\nジャンル：${genreLabel}\n対象：${ageLabel}`;
+    if (monthLabel) p += `（${monthLabel}）`;
+    p += allergyStr;
+    p += `\n上記の条件で3つのレシピを提案してください。`;
+    if (currentAge === 'baby') p += `\n月齢に合わせた固さ・食材の安全性・調理法に必ず配慮し、アレルギーリスクのある食材にはnoteで注意を記載してください。`;
+    if (currentAge === 'toddler') p += `\n幼児食は薄味・やわらか・小さめサイズで。`;
+    return p;
+  }
+
+  // ===== レンダリング =====
+  function renderRecipes(recipes, isFav = false) {
+    const list = document.getElementById('recipeList');
+    const age  = currentAge;
+
+    if (recipes.length === 0) {
+      list.innerHTML = '<div class="empty-fav">❤️ お気に入りレシピはまだありません<br>レシピカードの ♡ を押して保存しましょう</div>';
+      document.getElementById('resultsSection').style.display = 'block';
+      return;
+    }
+
+    // 中間広告（フリーのみ、結果が2件以上のとき）
+    const adMid = isPremium || recipes.length < 2 ? '' : `
+      <div class="ad-mid" id="adMid">
+        <div class="ad-mid-label">広 告</div>
+        <div class="ad-mid-content">🍼 ベビーフード・離乳食グッズはコチラ ▶ <span style="color:var(--orange);cursor:pointer" onclick="alert('※ アフィリエイトリンクに差し替えます')">Amazon で探す</span></div>
+      </div>`;
+
+    list.innerHTML = recipes.map((r, i) => {
+      const isFaved = favorites.some(f => f.name === r.name);
+      const noteHtml = r.note
+        ? age === 'baby'    ? `<div class="baby-note">👶 ${r.note}</div>`
+        : age === 'toddler' ? `<div class="toddler-note">👧 ${r.note}</div>`
+        : '' : '';
+      const ingredientsHtml = (r.ingredients||[]).map(ing=>`<li><span>${ing.name}</span><span>${ing.amount}</span></li>`).join('');
+      const stepsHtml = (r.steps||[]).map(s=>`<li>${s}</li>`).join('');
+      const searchKw = encodeURIComponent(r.name);
+
+      const card = `
+        <div class="recipe-card" data-age="${isFav ? (r.age||age) : age}" data-idx="${i}">
+          <button class="fav-btn" onclick="toggleFav(event,${i})" title="お気に入り">${isFaved?'❤️':'🤍'}</button>
+          <div class="recipe-header">
+            <div class="recipe-name" onclick="toggleDetail('detail-${i}')">${r.name}</div>
+            <div class="recipe-badges">
+              <span class="badge badge-time">⏱ ${r.time||'?分'}</span>
+              <span class="badge badge-genre">${r.genre||''}</span>
+            </div>
+          </div>
+          <div class="recipe-desc">${r.description||''}</div>
+          <div class="recipe-detail" id="detail-${i}">
+            <div class="detail-section-title">🥦 材料</div>
+            <ul class="ingredient-list">${ingredientsHtml}</ul>
+            <div class="detail-section-title" style="margin-top:14px">👨‍🍳 作り方</div>
+            <ol class="step-list">${stepsHtml}</ol>
+            ${noteHtml}
+            <a class="external-link" href="https://cookpad.com/search/${searchKw}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+              🔗 クックパッドで「${r.name}」を検索する
+            </a>
+          </div>
+        </div>`;
+      // 中間広告は2枚目の後ろ
+      return i === 1 ? card + adMid : card;
+    }).join('');
+
+    document.getElementById('resultsSection').style.display = 'block';
+  }
+
+  function toggleDetail(id) {
+    document.getElementById(id)?.classList.toggle('open');
+  }
+
+  // ===== お気に入り =====
+  function toggleFav(event, idx) {
+    event.stopPropagation();
+    const recipes = showingFavs ? favorites : currentRecipes;
+    const recipe  = recipes[idx];
+    if (!recipe) return;
+    const btn = document.querySelector(`.recipe-card[data-idx="${idx}"] .fav-btn`);
+    const already = favorites.some(f => f.name === recipe.name);
+    if (already) {
+      favorites = favorites.filter(f => f.name !== recipe.name);
+      if (btn) btn.textContent = '🤍';
+    } else {
+      if (!isPremium && favorites.length >= 5) { openModal(); return; }
+      recipe.age = currentAge;
+      favorites.push(recipe);
+      if (btn) btn.textContent = '❤️';
+    }
+    localStorage.setItem('ouchi_favs', JSON.stringify(favorites));
+  }
+
+  function toggleFavView() {
+    showingFavs = !showingFavs;
+    const fb = document.getElementById('favTabBtn');
+    fb.classList.toggle('active', showingFavs);
+    fb.textContent = showingFavs ? '📋 提案に戻る' : '❤️ お気に入り';
+    const title = document.querySelector('.results-title');
+    if (showingFavs) {
+      title.innerHTML = '❤️ お気に入りレシピ';
+      renderRecipes(favorites, true);
+    } else {
+      title.innerHTML = '🎉 提案レシピ <span class="ai-badge">✦ AI生成</span>';
+      renderRecipes(currentRecipes);
+    }
+  }
+
+  // ===== プレミアムモーダル =====
+  function openModal()  { document.getElementById('modalOverlay').classList.add('show'); }
+  function closeModal() { document.getElementById('modalOverlay').classList.remove('show'); }
+  function closeModalOutside(e) { if (e.target === document.getElementById('modalOverlay')) closeModal(); }
+
+  function activatePremium() {
+    isPremium = true;
+    closeModal();
+    // UI更新
+    document.getElementById('adBannerTop').classList.add('premium-hidden');
+    document.getElementById('premiumBanner').classList.add('hidden');
+    document.querySelectorAll('.ad-mid').forEach(el => el.classList.add('premium-hidden'));
+    document.getElementById('premiumHeaderBtn').textContent = '👑 プレミアム会員';
+    document.getElementById('premiumHeaderBtn').classList.add('active');
+    updateCounter();
+    alert('🎉 プレミアムプランが有効になりました！\n（デモ）実際はStripe等の決済連携が必要です。');
+  }
+
+  // 初期化
+  updateCounter();
+</script>
+
+</body>
+</html>
